@@ -7,10 +7,10 @@ from app.core.config import config
 from app.services.twitter.tweet import TweetFetcherService
 from app.models.token_creators import TokenCreatoDetails
 
-from app.static.default import DATABASE_FILE
+from app.static.default import CREATORS_DATABASE_FILE
 
 
-db = TinyDB(DATABASE_FILE)
+db = TinyDB(CREATORS_DATABASE_FILE)
 
 
 async def create_launchcoin_background_job(username: str):

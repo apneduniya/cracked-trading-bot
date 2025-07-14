@@ -178,3 +178,6 @@ vectorstore/
 
 # logs
 logs/
+
+# custom
+db/

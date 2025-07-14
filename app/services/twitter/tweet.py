@@ -8,7 +8,7 @@ from app.services.core.api import APIService
 from app.services.twitter.routes import TweetsFetcherRoutes
 from app.models.tweets import Tweet
 from app.models.token_creators import TokenCreatoDetails
-from app.static.default import DATABASE_FILE
+from app.static.default import CREATORS_DATABASE_FILE
 
 
 class TweetFetcherService:
@@ -17,7 +17,7 @@ class TweetFetcherService:
             service_name="tweets_fetcher",
             base_url=TweetsFetcherRoutes.BASE
         )
-        self.db = TinyDB(DATABASE_FILE)
+        self.db = TinyDB(CREATORS_DATABASE_FILE)
 
     def fetch_tweets(self, username: str) -> t.Optional[t.List[Tweet]]:
         """
