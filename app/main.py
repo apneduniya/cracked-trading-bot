@@ -6,7 +6,7 @@ from app.providers.bot_controller import get_bot_controller
 
 from app.services.scheduler.manager import SchedulerManager
 from app.services.scheduler.launchcoin import LaunchcoinScheduler
-
+from app.services.scheduler.creator import CreatorScheduler
 
 scheduler_manager = SchedulerManager()
 
@@ -20,9 +20,10 @@ async def start_bot() -> None:
     
 async def start_scheduler() -> None:
     launchcoin_scheduler = LaunchcoinScheduler()
+    creator_scheduler = CreatorScheduler()
 
     scheduler_manager.register_scheduler(launchcoin_scheduler)
-
+    scheduler_manager.register_scheduler(creator_scheduler)
 
     logger.info("Creating and starting all schedules...")
     scheduler_manager.create_all_schedules()

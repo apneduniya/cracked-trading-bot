@@ -18,7 +18,8 @@ class Config(BaseSettings):
     LOGS_DIR: str = "logs"
 
     # Scheduler Configuration
-    APSCHEDULER_RUN_ON_STARTUP: bool = True
+    LAUNCHCOIN_SCHEDULER_RUN_ON_STARTUP: bool = False
+    CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = True
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service
