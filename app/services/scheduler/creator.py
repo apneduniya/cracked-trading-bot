@@ -15,7 +15,7 @@ class CreatorScheduler(BaseScheduler):
     """
     Scheduler specifically for fetching creator's posts who launch their token on believe.
     """
-    interval: int = 60 * 5 # 5 minutes
+    interval: int = config.CREATOR_SCHEDULER_INTERVAL
     
     def __init__(self):
         super().__init__()

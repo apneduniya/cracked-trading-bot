@@ -12,7 +12,7 @@ class LaunchcoinScheduler(BaseScheduler):
     """
     Scheduler specifically for fetching creator details who launch their token on believe.
     """
-    interval: int = 60 * 15 # 15 minutes
+    interval: int = config.LAUNCHCOIN_SCHEDULER_INTERVAL
     
     def __init__(self):
         super().__init__()
