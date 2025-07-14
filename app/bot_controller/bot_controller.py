@@ -23,15 +23,11 @@ class BotController:
     """
 
     MIDDLEWARES = [
-        # middlewares.SaveChatMiddleware,
-        middlewares.AuthorizedMiddleware,
         middlewares.AutoAnswerMiddleware,
     ]
 
     ROUTERS = [
         handlers.base_router,
-        handlers.users_router,
-        handlers.question_router,
     ]
 
     def __init__(self):

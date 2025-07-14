@@ -14,13 +14,17 @@ class Config(BaseSettings):
     # Application Configuration
     LOG_LEVEL: str = "INFO"
     ENVIRONMENT: str = "development"
-    BOT_TOKEN: str
+    # BOT_TOKEN: str
     LOGS_DIR: str = "logs"
+
+    # Scheduler Configuration
+    APSCHEDULER_RUN_ON_STARTUP: bool = True
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service
 
     COMPOSIO_API_KEY: str
+    OPENAI_API_KEY: str
 
     class Config:
         env_file = ".env"

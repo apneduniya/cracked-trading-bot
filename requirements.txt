@@ -8,3 +8,5 @@ requests
 urllib3
 pydantic_settings
 composio==1.0.0rc9
+apscheduler
+tinydb
