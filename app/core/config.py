@@ -23,7 +23,7 @@ class Config(BaseSettings):
     LAUNCHCOIN_SCHEDULER_RUN_ON_STARTUP: bool = False
     LAUNCHCOIN_SCHEDULER_INTERVAL: int = 60 * 15 # 15 minutes
 
-    CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = False
+    CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = True
     CREATOR_SCHEDULER_INTERVAL: int = 60 * 5 # 5 minutes
 
     # Trading Agent Configuration

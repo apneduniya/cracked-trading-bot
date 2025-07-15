@@ -12,4 +12,6 @@ apscheduler
 tinydb
 agno
 openai
-agentipy
+solders
+solana
+jupiter-python-sdk
