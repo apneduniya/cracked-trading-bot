@@ -12,3 +12,4 @@ apscheduler
 tinydb
 agno
 openai
+agentipy

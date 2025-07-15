@@ -16,7 +16,7 @@ class BaseWalletService(ABC):
             token_address: The token address. If None, returns SOL balance.
         
         Returns:
-            Token balance (in token units for tokens, SOL units for SOL)
+            Balance as a float in UI units, or None if the account doesn't exist.
         """
         pass
 
@@ -31,7 +31,7 @@ class BaseWalletService(ABC):
             amount: Amount to swap (in token units)
         
         Returns:
-            Amount received from the swap (in token units)
+            Transaction signature
         """
         pass
         

@@ -2,6 +2,7 @@ import typing as t
 
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
+from app.static.tokens import SolanaNetworks
 
 
 class Config(BaseSettings):
@@ -30,6 +31,7 @@ class Config(BaseSettings):
     AUTONOMOUS_TRADING: bool = False # If True, the trading agent will make decisions and do trading on its own. If False, the trading agent will wait for confirmation from the user.
     TRADING_AGENT_MODEL: str = "gpt-4o" # NOTE: Currently, only gpt-4o is supported.
     PRIVATE_KEY: str # Private key of the wallet.
+    RPC_URL: SolanaNetworks = SolanaNetworks.MAINNET_BETA
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service
