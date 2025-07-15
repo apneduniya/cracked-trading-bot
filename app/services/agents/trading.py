@@ -12,13 +12,13 @@ class TradingAgent:
     def __init__(self):
         self.trading_workflow = TradingWorkflow()
 
-    async def response(self, username: str, founder_tweets: t.List[str]) -> t.Optional[TradingAgentResponse]:
+    async def response(self, username: str, founder_tweets: t.List[str], user_wallet_balance: float, user_token_hold: float) -> t.Optional[TradingAgentResponse]:
         try:
             logger.info(f"Running trading workflow for username: {username}")
             
             # Collect all responses from the workflow
             responses = []
-            async for response in self.trading_workflow.arun(username, founder_tweets):
+            async for response in self.trading_workflow.arun(username, founder_tweets, user_wallet_balance, user_token_hold):
                 responses.append(response)
             
             if not responses:

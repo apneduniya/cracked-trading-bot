@@ -30,7 +30,7 @@ class TelegramNotificationService(BaseNotificationService):
         
         self.chat_id: int = chat_id
 
-    async def send_notification(self, message: str, token_address: str, is_buy_action: bool = True, amount: t.Optional[float] = None) -> None:
+    async def send_notification(self, message: str, token_address: str, is_buy_action: bool = True, is_sell_action: bool = False, amount: t.Optional[float] = None) -> None:
         """Send a notification message to the user.
 
         Args:
@@ -40,17 +40,17 @@ class TelegramNotificationService(BaseNotificationService):
             chat_id=self.chat_id,
             text=message,
             parse_mode="Markdown",
-            reply_markup=get_action_buttons(token_address, is_buy_action=is_buy_action, amount=amount)
+            reply_markup=get_action_buttons(token_address, is_buy_action=is_buy_action, is_sell_action=is_sell_action, amount=amount)
         )
         logger.info(f"Sent notification to {self.chat_id}: {message}")
 
-    async def send_image(self, image_url: str, message: str, token_address: str, is_buy_action: bool = True, amount: t.Optional[float] = None) -> None:
+    async def send_image(self, image_url: str, message: str, token_address: str, is_buy_action: bool = True, is_sell_action: bool = False, amount: t.Optional[float] = None) -> None:
         await self._bot.send_photo(
             chat_id=self.chat_id,
             photo=URLInputFile(image_url),
             caption=message,
             parse_mode="Markdown",
-            reply_markup=get_action_buttons(token_address, is_buy_action=is_buy_action, amount=amount)
+            reply_markup=get_action_buttons(token_address, is_buy_action=is_buy_action, is_sell_action=is_sell_action, amount=amount)
         )
         logger.info(f"Sent image to {self.chat_id}: {message}")
 

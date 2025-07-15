@@ -8,7 +8,7 @@ from app.static.tokens import SolanaNetworks
 class Config(BaseSettings):
     # Details
     APP_NAME: str = "Cracked Trading Bot"
-    APP_VERSION: str = "1.0.0"
+    APP_VERSION: str = "0.1.0"
     APP_DESCRIPTION: str = "An AI-powered crypto trading bot that runs on Believe tokens where it analyzes the token creator's (founder of the project) posts, and makes real-time buy decisions - all reported on Telegram."
     BOT_DESCRIPTION: str = "I am an AI-powered crypto trading bot that runs on Believe tokens where it analyzes the token creator's (founder of the project) posts, and makes real-time buy decisions - all reported on Telegram."
 
@@ -27,11 +27,12 @@ class Config(BaseSettings):
     CREATOR_SCHEDULER_INTERVAL: int = 60 * 5 # 5 minutes
 
     # Trading Agent Configuration
-    TRADING_AGENT_TYPE: str = "chill" # "chill" or "aggressive" or "moderate"
+    TRADING_AGENT_TYPE: t.Literal["chill", "aggressive", "moderate"] = "chill" # "chill" or "aggressive" or "moderate"
     AUTONOMOUS_TRADING: bool = False # If True, the trading agent will make decisions and do trading on its own. If False, the trading agent will wait for confirmation from the user.
     TRADING_AGENT_MODEL: str = "gpt-4o" # NOTE: Currently, only gpt-4o is supported.
     PRIVATE_KEY: str # Private key of the wallet.
     RPC_URL: SolanaNetworks = SolanaNetworks.MAINNET_BETA
+    USER_PERSONALITY: str = "I am a student who is interested in crypto and blockchain technology. I am a beginner and I am looking for a project to invest in. I want to make quick cash"
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service

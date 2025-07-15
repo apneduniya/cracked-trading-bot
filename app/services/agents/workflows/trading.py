@@ -15,6 +15,7 @@ from app.services.data.token_data import TokenDataService
 class TradingWorkflow(Workflow):
     system_prompt = SYSTEM_PROMPT.format(
         trading_agent_type=config.TRADING_AGENT_TYPE,
+        user_personality=config.USER_PERSONALITY,
         post_system_prompt=AUTONOMOUS_ACCESS_PROMPT if config.AUTONOMOUS_TRADING else ""
     )
 
@@ -29,7 +30,7 @@ class TradingWorkflow(Workflow):
         add_datetime_to_instructions=True,
     )
 
-    async def arun(self, username: str, founder_tweets: t.List[str]) -> t.AsyncIterator[RunResponse]:
+    async def arun(self, username: str, founder_tweets: t.List[str], user_wallet_balance: float, user_token_hold: float) -> t.AsyncIterator[RunResponse]:
         self.launchcoin_creator_repository = LaunchcoinCreatorRepository()
 
         logger.info(f"Getting token creator details for username: {username}")
@@ -49,7 +50,9 @@ class TradingWorkflow(Workflow):
         prompt = PROMPT.format(
             token_name=f"{token_creator_details.token_name} ({token_creator_details.token_symbol})",
             token_details=token_data.model_dump_json(),
-            founder_tweets="\n".join(founder_tweets)
+            founder_tweets="\n".join(founder_tweets),
+            token_hold=user_token_hold,
+            wallet_balance=user_wallet_balance
         )
 
         try:

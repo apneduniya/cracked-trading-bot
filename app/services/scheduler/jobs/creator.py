@@ -5,8 +5,10 @@ from app.core.logging import logger
 from app.models.trading_agent import TradingAgentResponse
 from app.models.tweets import Tweet
 from app.models.data.token_data import TokenData
+from app.services.agents.wallet import WalletService
 from app.services.data.token_data import TokenDataService
 from app.services.twitter.tweet import TweetFetcherService
+from app.static.tokens import CommonTokens
 
 from app.repository.launchcoin import LaunchcoinCreatorRepository
 from app.models.creators import TokenCreatorDetails, CreatorPosts
@@ -16,8 +18,11 @@ from app.services.notification.telegram import TelegramNotificationService
 from app.utils.format.trade_chart import get_simple_chart_image
 from app.utils.format.trading_notification import format_trading_notification
 
+
 creator_repository = CreatorRepository()
 launchcoin_creator_repository = LaunchcoinCreatorRepository()
+wallet_service = WalletService()
+
 
 
 
@@ -52,11 +57,9 @@ async def create_creator_background_job(usernames: t.List[str]):
                     # AI Analysis of the creator's post
                     logger.info(f"Analyzing creator post for {username} - {cp.url}")
                     try:
-                        trading_agent_response: t.Optional[TradingAgentResponse] = await trading_agent.response(username, [cp.description])
+                        trading_agent_response: t.Optional[TradingAgentResponse] = await trading_agent.response(username, [cp.description], await wallet_service.get_balance(CommonTokens.USDC.value), await wallet_service.get_balance(token_creator_details.token_address))
                         if trading_agent_response:
                             logger.info(f"Trading agent response: {trading_agent_response}")
-                            # Send notification to the user
-                            logger.info(f"Sending notification to the user for {username} - {cp.url}")
                             
                             # Format and send notification message
                             notification_message = format_trading_notification(
@@ -76,12 +79,22 @@ async def create_creator_background_job(usernames: t.List[str]):
 
                             # Action buttons
                             is_buy_action: bool = trading_agent_response.action == "buy"
-                            amount: t.Optional[float] = None
+                            is_sell_action: bool = trading_agent_response.action == "sell"
 
+                            # Calculate the amount to allocate to the token
+                            users_current_wallet_balance: t.Optional[float] = await wallet_service.get_balance(CommonTokens.USDC.value)
+                            if users_current_wallet_balance is None:
+                                logger.warning(f"User's current wallet balance is not found")
+                                continue
+
+                            amount: float = users_current_wallet_balance * (trading_agent_response.capital_allocation / 100)
+
+                            # Send notification
+                            logger.info(f"Sending notification to the user for {username} - {cp.url}")
                             if token_chart_url:
-                                await notification_service.send_image(token_chart_url, notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, amount=amount)
+                                await notification_service.send_image(token_chart_url, notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, is_sell_action=is_sell_action, amount=amount)
                             else:
-                                await notification_service.send_notification(notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, amount=amount)
+                                await notification_service.send_notification(notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, is_sell_action=is_sell_action, amount=amount)
                         else:
                             logger.warning(f"Trading agent returned no response for {username} - {cp.url}")
                     except Exception as e:

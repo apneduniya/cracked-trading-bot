@@ -2,11 +2,11 @@ import typing as t
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from app.static.default import BUY_CALLBACK_DATA
+from app.static.default import BUY_CALLBACK_DATA, SELL_CALLBACK_DATA
 from app.core.config import config
 
 
-def get_action_buttons(token_address: str, is_buy_action: bool = True, amount: t.Optional[float] = None) -> InlineKeyboardMarkup:
+def get_action_buttons(token_address: str, is_buy_action: bool = True, is_sell_action: bool = False, amount: t.Optional[float] = None) -> InlineKeyboardMarkup:
     """
     Get the action buttons for the token.
 
@@ -26,6 +26,14 @@ def get_action_buttons(token_address: str, is_buy_action: bool = True, amount: t
                             callback_data=BUY_CALLBACK_DATA.format(token_address=token_address, amount=amount),
                         )
                     ] if not config.AUTONOMOUS_TRADING and is_buy_action else []
+                ),
+                *(
+                    [
+                        InlineKeyboardButton(
+                            text="Sell",
+                            callback_data=SELL_CALLBACK_DATA.format(token_address=token_address, amount=amount),
+                        )
+                    ] if not config.AUTONOMOUS_TRADING and is_sell_action else []
                 ),
                 InlineKeyboardButton(
                     text="View on Believe",

@@ -41,6 +41,16 @@ class TokenDataService:
             token_details = TokenDataModel(**response[0])
             return token_details.usdPrice
         return None
+    
+    def get_token_symbol(self) -> t.Optional[str]:
+        """
+        Get the symbol of the token
+        """
+        response = self.api_service.get(TokenDataRoutes.TOKEN_DETAILS, params={"query": self.token_address})
+        if response:
+            token_details = TokenDataModel(**response[0])
+            return token_details.symbol
+        return None
 
 
 if __name__ == "__main__":
@@ -49,11 +59,13 @@ if __name__ == "__main__":
     # token_data_service = TokenDataService("aKHs9C1kzwfopRJ8Z8mStNWhv1fVyzynSdHUDP5kBLV")
     token_data_service = TokenDataService("4HDPjV98ZJpDnc7FuyF2tsMDxkKhyPGs5yzyrEgvyBLV")
     token_data = token_data_service.search_token_details()
+    symbol = token_data_service.get_token_symbol()
     price = token_data_service.get_token_price()
 
     print(
         json.dumps(token_data.model_dump(), indent=4)
     )
+    print("symbol: ", symbol)
     print("price in usd: ", price)
 
 
