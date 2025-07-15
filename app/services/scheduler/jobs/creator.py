@@ -2,15 +2,23 @@ import typing as t
 
 from app.core.config import config
 from app.core.logging import logger
+from app.models.trading_agent import TradingAgentResponse
 from app.models.tweets import Tweet
+from app.models.data.token_data import TokenData
+from app.services.data.token_data import TokenDataService
 from app.services.twitter.tweet import TweetFetcherService
 
+from app.repository.launchcoin import LaunchcoinCreatorRepository
+from app.models.creators import TokenCreatorDetails, CreatorPosts
 from app.repository.creator import CreatorRepository
 from app.services.agents.trading import TradingAgent
 from app.services.notification.telegram import TelegramNotificationService
-
+from app.utils.format.trade_chart import get_simple_chart_image
+from app.utils.format.trading_notification import format_trading_notification
 
 creator_repository = CreatorRepository()
+launchcoin_creator_repository = LaunchcoinCreatorRepository()
+
 
 
 async def create_creator_background_job(usernames: t.List[str]):
@@ -24,16 +32,19 @@ async def create_creator_background_job(usernames: t.List[str]):
         tweet_fetcher = TweetFetcherService()
         trading_agent = TradingAgent()
         notification_service = TelegramNotificationService(chat_id=config.TELEGRAM_CHAT_ID)
-        await notification_service.initialize()
 
         for username in usernames:
             creator_posts: t.Optional[t.List[Tweet]] = tweet_fetcher.fetch_tweets(username)
+            token_creator_details: t.Optional[TokenCreatorDetails] = launchcoin_creator_repository.get_token_details_by_username(username)
+            if not token_creator_details:
+                logger.warning(f"No token creator details found for {username}")
+                continue
 
             if not creator_posts:
                 logger.debug(f"No creator posts found for {username}")
                 continue
 
-            result = [] # List of creator posts to save to database
+            result: t.Optional[t.List[Tweet]] = [] # List of creator posts to save to database
 
             # check if creator posts already exist in database
             for cp in creator_posts:
@@ -41,12 +52,32 @@ async def create_creator_background_job(usernames: t.List[str]):
                     # AI Analysis of the creator's post
                     logger.info(f"Analyzing creator post for {username} - {cp.url}")
                     try:
-                        trading_agent_response = await trading_agent.response(username, [cp.description])
+                        trading_agent_response: t.Optional[TradingAgentResponse] = await trading_agent.response(username, [cp.description])
                         if trading_agent_response:
                             logger.info(f"Trading agent response: {trading_agent_response}")
                             # Send notification to the user
                             logger.info(f"Sending notification to the user for {username} - {cp.url}")
-                            await notification_service.send_notification(f"Trading decision for {username}: {trading_agent_response.action}")
+                            
+                            # Format and send notification message
+                            notification_message = format_trading_notification(
+                                username=username,
+                                token_creator_details=token_creator_details,
+                                creator_post=cp,
+                                trading_agent_response=trading_agent_response
+                            )
+
+                            # Get token chart image
+                            token_chart_url: t.Optional[str] = None
+
+                            token_data_service = TokenDataService(token_address=token_creator_details.token_address)
+                            token_data: t.Optional[TokenData] = token_data_service.search_token_details()
+                            if token_data:
+                                token_chart_url = get_simple_chart_image(token_data)
+
+                            if token_chart_url:
+                                await notification_service.send_image(token_chart_url, notification_message)
+                            else:
+                                await notification_service.send_notification(notification_message)
                         else:
                             logger.warning(f"Trading agent returned no response for {username} - {cp.url}")
                     except Exception as e:
@@ -59,7 +90,7 @@ async def create_creator_background_job(usernames: t.List[str]):
 
             # Save creator post's username and url to database
             if result:
-                creator_repository.save_creator_posts(result)
+                creator_repository.save_creator_posts([CreatorPosts(username=username, url=cp.url) for cp in result])
                 logger.info(f"Saved {len(result)} creator posts to database")
                 
             else:
@@ -68,7 +99,3 @@ async def create_creator_background_job(usernames: t.List[str]):
     except Exception as e:
         logger.error(f"Error in creator background job: {e}")
         raise e
-    
-    finally:
-        if notification_service:
-            await notification_service.end()
