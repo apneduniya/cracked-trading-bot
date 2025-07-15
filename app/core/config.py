@@ -9,8 +9,8 @@ class Config(BaseSettings):
     # Details
     APP_NAME: str = "Cracked Trading Bot"
     APP_VERSION: str = "0.1.0"
-    APP_DESCRIPTION: str = "An AI-powered crypto trading bot that runs on Believe tokens where it analyzes the token creator's (founder of the project) posts, and makes real-time buy decisions - all reported on Telegram."
-    BOT_DESCRIPTION: str = "I am an AI-powered crypto trading bot that runs on Believe tokens where it analyzes the token creator's (founder of the project) posts, and makes real-time buy decisions - all reported on Telegram."
+    APP_DESCRIPTION: str = "Believe X AI-powered personal crypto trading bot that runs 24/7 on Believe tokens, analyzing token creators' posts and making real-time buy/sell decisions - all reported via Telegram."
+    BOT_DESCRIPTION: str = "I am an AI-powered personal crypto trading bot that runs 24/7 on Believe tokens, analyzing token creators' posts and making real-time buy/sell decisions - all reported via Telegram."
 
     # Application Configuration
     LOG_LEVEL: str = "INFO"
