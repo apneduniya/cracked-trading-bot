@@ -7,10 +7,10 @@ from app.core.config import config
 from app.services.twitter.tweet import TweetFetcherService
 from app.models.creators import TokenCreatorDetails
 
-from app.static.default import CREATORS_DATABASE_FILE
+from app.repository.launchcoin import LaunchcoinCreatorRepository
 
 
-db = TinyDB(CREATORS_DATABASE_FILE)
+launchcoin_creator_repository = LaunchcoinCreatorRepository()
 
 
 async def create_launchcoin_background_job(username: str):
@@ -28,15 +28,14 @@ async def create_launchcoin_background_job(username: str):
 
         # check database for duplicates
         for tc in token_creators:
-            existing_token_creators = db.search(Query().token_address == tc.token_address)
-            if not existing_token_creators:
+            if not launchcoin_creator_repository.is_token_creator_exists(tc):
                 result.append(tc)
             else:
                 logger.debug(f"Token creator already exists for {tc.token_address}")
 
         # Save token creators to database
         if result:
-            db.insert_multiple([tc.model_dump() for tc in result])
+            launchcoin_creator_repository.save_token_creator_details(result)
             logger.info(f"Saved {len(result)} token creators to database")
             
         else:
