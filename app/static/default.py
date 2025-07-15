@@ -7,6 +7,11 @@ LAUNCHCOIN_USERNAME = "launchcoin"
 CREATORS_DATABASE_FILE = "db/creators.json"
 CREATORS_TWEETS_DATABASE_FILE = "db/creators_tweets.json"
 
+# Callback data
+BUY_CALLBACK_DATA = "buy_{token_address}_{amount}"
+
+
+
 
 
 

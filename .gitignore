@@ -181,3 +181,4 @@ logs/
 
 # custom
 db/
+internal_tests/

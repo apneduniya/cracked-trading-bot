@@ -18,12 +18,28 @@ class AutoAnswerMiddleware(BaseMiddleware):
         event: types.TelegramObject,
         data: t.Dict[str, t.Any],
     ) -> t.Any:
-        message: types.Message = event.message
-
-        log_bot_incomming_message(message)
+        # Handle different types of updates
+        message: t.Optional[types.Message] = None
+        
+        if hasattr(event, 'message') and event.message:
+            # Regular message
+            message = event.message
+        elif hasattr(event, 'callback_query') and event.callback_query:
+            # Callback query - get the message from the callback query
+            message = event.callback_query.message
+        elif isinstance(event, types.CallbackQuery):
+            # Direct callback query event
+            message = event.message
+        
+        # Only log if we have a valid message
+        if message:
+            log_bot_incomming_message(message)
+        
         result = await handler(event, data)
 
-        log_bot_outgoing_message(message, result)
+        # Only log outgoing message if we have a valid message
+        if message:
+            log_bot_outgoing_message(message, result)
 
         return result
         

@@ -74,10 +74,14 @@ async def create_creator_background_job(usernames: t.List[str]):
                             if token_data:
                                 token_chart_url = get_simple_chart_image(token_data)
 
+                            # Action buttons
+                            is_buy_action: bool = trading_agent_response.action == "buy"
+                            amount: t.Optional[float] = None
+
                             if token_chart_url:
-                                await notification_service.send_image(token_chart_url, notification_message)
+                                await notification_service.send_image(token_chart_url, notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, amount=amount)
                             else:
-                                await notification_service.send_notification(notification_message)
+                                await notification_service.send_notification(notification_message, token_creator_details.token_address, is_buy_action=is_buy_action, amount=amount)
                         else:
                             logger.warning(f"Trading agent returned no response for {username} - {cp.url}")
                     except Exception as e:

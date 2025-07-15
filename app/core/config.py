@@ -22,18 +22,18 @@ class Config(BaseSettings):
     LAUNCHCOIN_SCHEDULER_RUN_ON_STARTUP: bool = False
     LAUNCHCOIN_SCHEDULER_INTERVAL: int = 60 * 15 # 15 minutes
 
-    CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = True
+    CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = False
     CREATOR_SCHEDULER_INTERVAL: int = 60 * 5 # 5 minutes
 
     # Trading Agent Configuration
     TRADING_AGENT_TYPE: str = "chill" # "chill" or "aggressive" or "moderate"
     AUTONOMOUS_TRADING: bool = False # If True, the trading agent will make decisions and do trading on its own. If False, the trading agent will wait for confirmation from the user.
     TRADING_AGENT_MODEL: str = "gpt-4o" # NOTE: Currently, only gpt-4o is supported.
+    PRIVATE_KEY: str # Private key of the wallet.
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service
 
-    COMPOSIO_API_KEY: str
     OPENAI_API_KEY: str
 
     class Config:
