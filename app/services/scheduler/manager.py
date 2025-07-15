@@ -10,7 +10,7 @@ class SchedulerManager:
     
     def __init__(self):
         self.schedulers: t.List[BaseScheduler] = []
-        logger.info("Initialized SchedulerManager")
+        logger.debug("Initialized SchedulerManager")
 
     def register_scheduler(self, scheduler: BaseScheduler) -> None:
         """

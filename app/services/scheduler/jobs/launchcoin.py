@@ -1,9 +1,6 @@
 import typing as t
 
-from tinydb import TinyDB, Query
-
 from app.core.logging import logger
-from app.core.config import config
 from app.services.twitter.tweet import TweetFetcherService
 from app.models.creators import TokenCreatorDetails
 
@@ -23,19 +20,22 @@ async def create_launchcoin_background_job(username: str):
         # Initialize services
         tweet_fetcher = TweetFetcherService()
         token_creators: t.Optional[t.List[TokenCreatorDetails]] = tweet_fetcher.fetch_creator_details(username)
+        if not token_creators:
+            logger.info(f"No token creators found for {username}")
+            return
 
-        result = []
+        result: t.List[TokenCreatorDetails] = []
 
         # check database for duplicates
         for tc in token_creators:
-            if not launchcoin_creator_repository.is_token_creator_exists(tc):
+            if not launchcoin_creator_repository.is_token_creator_exists(tc.token_address):
                 result.append(tc)
             else:
                 logger.debug(f"Token creator already exists for {tc.token_address}")
 
         # Save token creators to database
         if result:
-            launchcoin_creator_repository.save_token_creator_details(result)
+            launchcoin_creator_repository.save_token_creator_details_list(result)
             logger.info(f"Saved {len(result)} token creators to database")
             
         else:

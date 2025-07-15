@@ -19,4 +19,4 @@ class CreatorRepository:
         self.db.insert_multiple([cp.model_dump() for cp in creator_posts])
 
     def is_creator_posts_exists(self, url: str) -> bool:
-        return self.db.search(Query().url == url) is not None
+        return bool(self.db.search(Query().url == url))

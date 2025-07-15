@@ -20,7 +20,7 @@ class CreatorScheduler(BaseScheduler):
     def __init__(self):
         super().__init__()
         self.db = TinyDB(CREATORS_DATABASE_FILE)
-        logger.info("Initialized CreatorScheduler")
+        logger.debug("Initialized CreatorScheduler")
 
     def get_token_creators(self) -> t.Optional[t.List[TokenCreatorDetails]]:
         """Get all token creators from database"""

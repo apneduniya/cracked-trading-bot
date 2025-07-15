@@ -25,8 +25,8 @@ def get_bot() -> Bot:
     """
     global _bot
     if _bot is None:
-        logger.info("Initializing the Bot instance using the token.")
+        logger.debug("Initializing the Bot instance using the token.")
         _bot = Bot(token=config.BOT_TOKEN)
     else:
-        logger.info("Bot instance already initialized. Returning the existing instance.")
+        logger.debug("Bot instance already initialized. Returning the existing instance.")
     return _bot

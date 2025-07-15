@@ -26,8 +26,8 @@ def get_bot_controller() -> BotController:
     """
     global _bot_controller
     if _bot_controller is None:
-        logger.info("Initializing the BotController instance, first time.")
+        logger.debug("Initializing the BotController instance, first time.")
         _bot_controller = BotController()
     else:
-        logger.info("BotController instance already initialized. Returning the existing instance.")
+        logger.debug("BotController instance already initialized. Returning the existing instance.")
     return _bot_controller

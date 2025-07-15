@@ -14,7 +14,8 @@ class Config(BaseSettings):
     # Application Configuration
     LOG_LEVEL: str = "INFO"
     ENVIRONMENT: str = "development"
-    # BOT_TOKEN: str
+    BOT_TOKEN: str
+    TELEGRAM_CHAT_ID: int = 5611375328 # Telegram ID of the user who will be receiving the trading decisions.
     LOGS_DIR: str = "logs"
 
     # Scheduler Configuration
@@ -23,6 +24,11 @@ class Config(BaseSettings):
 
     CREATOR_SCHEDULER_RUN_ON_STARTUP: bool = True
     CREATOR_SCHEDULER_INTERVAL: int = 60 * 5 # 5 minutes
+
+    # Trading Agent Configuration
+    TRADING_AGENT_TYPE: str = "chill" # "chill" or "aggressive" or "moderate"
+    AUTONOMOUS_TRADING: bool = False # If True, the trading agent will make decisions and do trading on its own. If False, the trading agent will wait for confirmation from the user.
+    TRADING_AGENT_MODEL: str = "gpt-4o" # NOTE: Currently, only gpt-4o is supported.
 
     # Backend Configuration
     TWEET_SCRAPE_SERVICE_URL: str # URL of my own personal tweet scrape service

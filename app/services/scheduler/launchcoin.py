@@ -17,7 +17,7 @@ class LaunchcoinScheduler(BaseScheduler):
     def __init__(self):
         super().__init__()
         self.username: str = LAUNCHCOIN_USERNAME
-        logger.info("Initialized LaunchcoinScheduler")
+        logger.debug("Initialized LaunchcoinScheduler")
 
     def create_schedules(self) -> None:
         """Create schedules for all registered resource hubs"""

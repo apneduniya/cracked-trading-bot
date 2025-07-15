@@ -109,7 +109,7 @@ class APIService(BaseAPIService[ApiRoute]):
 
         # Initialize session with retries
         self.session = self._create_session()
-        logger.info(f"Initialized {service_name} API service with base URL: {base_url.value}")
+        logger.debug(f"Initialized {service_name} API service with base URL: {base_url.value}")
 
     def _create_session(self) -> requests.Session:
         """Create and configure a requests session with retries"""
