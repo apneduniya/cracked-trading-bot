@@ -54,8 +54,8 @@ async def handle_buy_callback(callback_query: types.CallbackQuery):
         token_symbol = TokenDataService(token_address).get_token_symbol()
 
         # Check if the user has enough balance in their wallet
-        users_current_wallet_balance: t.Optional[float] = await wallet_service.get_balance(CommonTokens.USDC.value)
-        if users_current_wallet_balance is None:
+        users_current_wallet_balance: float = await wallet_service.get_balance(CommonTokens.USDC.value)
+        if users_current_wallet_balance == 0:
             logger.warning(f"User's current wallet balance is not found")
             return
         if users_current_wallet_balance < amount:
@@ -105,9 +105,9 @@ async def handle_sell_callback(callback_query: types.CallbackQuery):
         amount = callback_query.data.split("_")[2] # {amount}
         token_symbol = TokenDataService(token_address).get_token_symbol()
 
-        users_current_wallet_balance: t.Optional[float] = await wallet_service.get_balance(CommonTokens.USDC.value)
-        if users_current_wallet_balance is None:
-            logger.warning(f"User's current wallet balance is not found")
+        users_current_wallet_balance: float = await wallet_service.get_balance(CommonTokens.USDC.value)
+        if users_current_wallet_balance == 0:
+            logger.warning(f"User's current wallet balance is 0")
             return
         
         # Answer the callback query to remove the loading state

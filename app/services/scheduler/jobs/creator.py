@@ -60,15 +60,6 @@ async def create_creator_background_job(usernames: t.List[str]):
                         trading_agent_response: t.Optional[TradingAgentResponse] = await trading_agent.response(username, [cp.description], await wallet_service.get_balance(CommonTokens.USDC.value), await wallet_service.get_balance(token_creator_details.token_address))
                         if trading_agent_response:
                             logger.info(f"Trading agent response: {trading_agent_response}")
-                            
-                            # Format and send notification message
-                            notification_message = format_trading_notification(
-                                username=username,
-                                token_creator_details=token_creator_details,
-                                creator_post=cp,
-                                trading_agent_response=trading_agent_response
-                            )
-
                             # Get token chart image
                             token_chart_url: t.Optional[str] = None
 
@@ -82,12 +73,28 @@ async def create_creator_background_job(usernames: t.List[str]):
                             is_sell_action: bool = trading_agent_response.action == "sell"
 
                             # Calculate the amount to allocate to the token
-                            users_current_wallet_balance: t.Optional[float] = await wallet_service.get_balance(CommonTokens.USDC.value)
-                            if users_current_wallet_balance is None:
-                                logger.warning(f"User's current wallet balance is not found")
+                            users_current_wallet_balance: float = await wallet_service.get_balance(CommonTokens.USDC.value)
+                            if users_current_wallet_balance == 0:
+                                logger.warning(f"User's current wallet balance is 0")
                                 continue
 
                             amount: float = users_current_wallet_balance * (trading_agent_response.capital_allocation / 100)
+
+                            # If autonomous trading is enabled, swap the token to USDC
+                            if config.AUTONOMOUS_TRADING and trading_agent_response.action != "hold":
+                                if trading_agent_response.action == "sell":
+                                    await wallet_service.swap_token(token_creator_details.token_address, CommonTokens.USDC.value, amount)
+                                elif trading_agent_response.action == "buy":
+                                    await wallet_service.swap_token(CommonTokens.USDC.value, token_creator_details.token_address, amount)
+
+                            # Format notification message
+                            notification_message = format_trading_notification(
+                                username=username,
+                                token_creator_details=token_creator_details,
+                                creator_post=cp,
+                                trading_agent_response=trading_agent_response,
+                                amount=amount
+                            )
 
                             # Send notification
                             logger.info(f"Sending notification to the user for {username} - {cp.url}")

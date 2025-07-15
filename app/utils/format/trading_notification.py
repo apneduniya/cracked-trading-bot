@@ -1,3 +1,4 @@
+import typing as t
 
 from app.models.creators import TokenCreatorDetails
 from app.models.tweets import Tweet
@@ -8,7 +9,8 @@ def format_trading_notification(
     username: str,
     token_creator_details: TokenCreatorDetails,
     creator_post: Tweet,
-    trading_agent_response: TradingAgentResponse
+    trading_agent_response: TradingAgentResponse,
+    amount: t.Optional[float]
 ) -> str:
     """
     Format a comprehensive trading notification message for Telegram.
@@ -47,7 +49,7 @@ def format_trading_notification(
     
     # Add capital allocation only for buy/sell actions
     if trading_agent_response.action in ["buy", "sell"] and trading_agent_response.capital_allocation > 0:
-        lines.append(f"💰 **Capital Allocation**: {trading_agent_response.capital_allocation}%")
+        lines.append(f"💰 **Capital Allocation**: {trading_agent_response.capital_allocation}% (${amount})")
     
     # Add analysis
     lines.extend([
