@@ -50,15 +50,15 @@ async def handle_buy_callback(callback_query: types.CallbackQuery):
         # Extract token address from callback data
         # Format: "buy_{token_address}_{amount}"
         token_address = callback_query.data.split("_")[1] # {token_address}
-        amount = callback_query.data.split("_")[2] # {amount}
+        amount = float(callback_query.data.split("_")[2]) # {amount}
         token_symbol = TokenDataService(token_address).get_token_symbol()
 
         # Check if the user has enough balance in their wallet
         users_current_wallet_balance: float = await wallet_service.get_balance(CommonTokens.USDC.value)
-        if users_current_wallet_balance == 0:
+        if float(users_current_wallet_balance) == 0:
             logger.warning(f"User's current wallet balance is not found")
             return
-        if users_current_wallet_balance < amount:
+        if float(users_current_wallet_balance) < float(amount):
             logger.warning(f"User's current wallet balance is not enough to buy the token")
             return
                         
@@ -74,7 +74,7 @@ async def handle_buy_callback(callback_query: types.CallbackQuery):
         transaction_signature = await wallet_service.swap_token(
             from_token_address=CommonTokens.USDC.value,
             to_token_address=token_address,
-            amount=amount,
+            amount=float(amount),
         )
 
         if transaction_signature is None:
@@ -106,7 +106,7 @@ async def handle_sell_callback(callback_query: types.CallbackQuery):
         token_symbol = TokenDataService(token_address).get_token_symbol()
 
         users_current_wallet_balance: float = await wallet_service.get_balance(CommonTokens.USDC.value)
-        if users_current_wallet_balance == 0:
+        if float(users_current_wallet_balance) == 0:
             logger.warning(f"User's current wallet balance is 0")
             return
         

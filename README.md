@@ -91,7 +91,6 @@ I have built my own X scraper which doesn't require any API keys and can scrape 
 ### Database Management
 - **Creator Tracking**: Persistent storage of token creator information
 - **Post Deduplication**: Prevents duplicate analysis of the same posts
-- **Historical Data**: Maintains trading history and performance metrics
 
 ### API Integration
 - **Jupiter Price API**: Real-time token pricing and market data

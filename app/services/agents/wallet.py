@@ -50,9 +50,16 @@ class WalletService(BaseWalletService):
             ata = get_associated_token_address(owner=user_public_key, mint=token_mint)
             print(f"ATA: {ata}")
             
-            balance = await self.solana_client.get_token_account_balance(ata)
-            logger.debug(f"Successfully got balance: {balance}")
-
+            balance_response = await self.solana_client.get_token_account_balance(ata)
+            logger.debug(f"Successfully got balance response: {balance_response}")
+            
+            # Extract the actual balance value from the response
+            if hasattr(balance_response, 'value') and hasattr(balance_response.value, 'ui_amount'):
+                balance = float(balance_response.value.ui_amount or 0.0)
+            else:
+                balance = 0.0
+                
+            logger.debug(f"Extracted balance: {balance}")
             return balance    
         except Exception as e:
             logger.error(f"Error getting balance: {e}")
@@ -75,6 +82,26 @@ class WalletService(BaseWalletService):
         try:
             logger.info(f"Attempting to swap {amount} from {from_token_address} to {to_token_address} on Jupiter...")
 
+            # Convert amount to token's smallest units
+            # USDC has 6 decimal places, so we need to convert to micro-USDC
+            if from_token_address == CommonTokens.USDC.value:
+                # Convert USDC to micro-USDC (multiply by 10^6)
+                amount_in_smallest_units = int(amount * 1_000_000)
+            elif from_token_address == CommonTokens.SOL.value:
+                # Convert SOL to lamports (multiply by 10^9)
+                amount_in_smallest_units = int(amount * 1_000_000_000)
+            else:
+                # For other tokens, assume they follow SPL standard with 9 decimals
+                # You may need to adjust this based on the specific token
+                amount_in_smallest_units = int(amount * 1_000_000_000)
+
+            logger.info(f"Amount in smallest units: {amount_in_smallest_units}")
+
+            # Check if the amount is too small
+            if amount_in_smallest_units == 0:
+                logger.error(f"Amount {amount} is too small to swap")
+                return None
+
             # Prepare keypair and Jupiter client
             keypair = Keypair.from_base58_string(self.private_key)
             async_client = self.solana_client
@@ -87,11 +114,10 @@ class WalletService(BaseWalletService):
             )
 
             # Jupiter expects amount in smallest units (e.g. lamports for SOL, decimals for SPL)
-            # We'll assume amount is already in smallest units (caller responsibility)
             transaction_data = await jupiter.swap(
                 input_mint=from_token_address,
                 output_mint=to_token_address,
-                amount=int(amount),
+                amount=amount_in_smallest_units,
                 slippage_bps=50,  # 0.5% slippage
             )
             if not transaction_data:
@@ -136,40 +162,45 @@ if __name__ == "__main__":
 
         # 1. Get SOL price in USDC from Jupiter price API V3 (V4 is deprecated)
         # Use the correct V3 endpoint format
-        price_url = f"https://lite-api.jup.ag/price/v3/price?ids={sol_mint}"
-        try:
-            price_resp = requests.get(price_url)
-            price_resp.raise_for_status()
-            price_data = price_resp.json()
+        # price_url = f"https://lite-api.jup.ag/price/v3/price?ids={sol_mint}"
+        # try:
+        #     price_resp = requests.get(price_url)
+        #     price_resp.raise_for_status()
+        #     price_data = price_resp.json()
             
-            # V3 API has different response format
-            if 'data' in price_data and sol_mint in price_data['data']:
-                sol_price = float(price_data['data'][sol_mint]['price'])
-            else:
-                # Fallback: assume 1 SOL = 200 USDC if API fails
-                print("Warning: Could not fetch SOL price, using fallback price")
-                sol_price = 200.0
-        except Exception as e:
-            print(f"Error fetching price: {e}, using fallback price")
-            sol_price = 200.0  # Fallback price
+        #     # V3 API has different response format
+        #     if 'data' in price_data and sol_mint in price_data['data']:
+        #         sol_price = float(price_data['data'][sol_mint]['price'])
+        #     else:
+        #         # Fallback: assume 1 SOL = 200 USDC if API fails
+        #         print("Warning: Could not fetch SOL price, using fallback price")
+        #         sol_price = 200.0
+        # except Exception as e:
+        #     print(f"Error fetching price: {e}, using fallback price")
+        #     sol_price = 200.0  # Fallback price
 
-        # 2. Calculate how much SOL to swap for 0.2 USDC
-        usdc_to_swap = 0.2
-        sol_to_swap = usdc_to_swap / sol_price
+        # # 2. Calculate how much SOL to swap for 0.2 USDC
+        # usdc_to_swap = 0.2
+        # sol_to_swap = usdc_to_swap / sol_price
 
-        # 3. Convert SOL to lamports (1 SOL = 1_000_000_000 lamports)
-        lamports_to_swap = int(sol_to_swap * 1_000_000_000)
+        # # 3. Convert SOL to lamports (1 SOL = 1_000_000_000 lamports)
+        # lamports_to_swap = int(sol_to_swap * 1_000_000_000)
 
-        print(f"SOL price: ${sol_price:.2f}")
-        print(f"Swapping {lamports_to_swap} lamports ({sol_to_swap:.8f} SOL) for {usdc_to_swap} USDC...")
+        # print(f"SOL price: ${sol_price:.2f}")
+        # print(f"Swapping {lamports_to_swap} lamports ({sol_to_swap:.8f} SOL) for {usdc_to_swap} USDC...")
 
-        # 4. Call swap_token
-        tx_sig = await wallet_service.swap_token(
-            from_token_address=sol_mint,
-            to_token_address=usdc_mint,
-            amount=lamports_to_swap
-        )
-        print(f"Swap transaction signature: {tx_sig}")
+        # # 4. Call swap_token
+        # tx_sig = await wallet_service.swap_token(
+        #     from_token_address=sol_mint,
+        #     to_token_address=usdc_mint,
+        #     amount=lamports_to_swap
+        # )
+        # print(f"Swap transaction signature: {tx_sig}")
+
+        # 5. Get balance`
+        print("Getting balance...")
+        balance = await wallet_service.get_balance(CommonTokens.USDC.value)
+        print(f"Balance: {balance}", type(balance))
 
     asyncio.run(main())
 
